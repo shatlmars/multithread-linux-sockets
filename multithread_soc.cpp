@@ -10,6 +10,7 @@
 #include <queue>
 #include <memory> 
 #include <unistd.h>
+#include "includes/thread_pool.h"
 
 std::queue<std::vector<char>> message_queue;
 std::mutex queue_mutex;
