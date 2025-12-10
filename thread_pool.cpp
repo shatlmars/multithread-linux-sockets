@@ -29,7 +29,7 @@ std::any Task::get_result() const {
 }
 
 
-/*-------------------------------------------------*/
+/*-----------------------------------------------------------------------------------------*/
 
 ThreadPool::ThreadPool(size_t n){
     for(size_t i = 0; i < n; i++){
@@ -39,6 +39,38 @@ ThreadPool::ThreadPool(size_t n){
 template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
 uint64_t add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args){
     uint64_t task_id = last_idx++;
+    
+}
+
+void ThreadPool::wait(uint64_t task_id){
+    std::unique_lock<std::mutex> lock(task_info_mtx);
+    task_info_cv.wait(lock, [this, task_id]()->bool{
+        return task_id < last_idx && task_info[task_id].status == TaskStatus::completed;
+    });
+}
+
+
+std::any ThreadPool::wait_result(uint64_t task_id){
+    std::unique_lock<std::mutex> lock(task_info_mtx);
+    task_info_cv.wait(lock, [this, task_id]()->bool{
+        return task_id < last_idx && task_info[task_id].status == TaskStatus::completed;
+    });
+
+    return task_info[task_id].result;
+}
+
+template<typename T>
+void ThreadPool::wait_result(uint64_t task_id, T& value){
+    std::unique_lock<std::mutex> lock(task_info_mtx);
+    task_info_cv.wait(lock, [this, task_id]()->bool{
+        return task_id < last_idx && task_info[task_id].status == TaskStatus::completed;
+    });
+
+    value = std::any_cast<T>(task_info[task_id].result);
+}
+void ThreadPool::wait_all(){
+    std::unique_lock<std::mutex> lock(task_info_mtx);
+    wait_all_cv.wait(lock, [this]()->bool{return cnt_completed_task == last_idx;});
 }
 
 ThreadPool::~ThreadPool(){

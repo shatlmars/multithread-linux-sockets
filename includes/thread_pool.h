@@ -24,6 +24,7 @@ public:
     void operator() ();
     bool has_result();
     std::any get_result() const;
+
 private:
     std::function<void()> void_func;
     std::function<std::any()> any_func;
@@ -41,6 +42,11 @@ class ThreadPool{
     ~ThreadPool();
     template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
     uint64_t add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args);
+    void wait(uint64_t task_id);
+    std::any wait_result(uint64_t task_id); 
+    void wait_all();
+    template<typename T>
+    void wait_result(uint64_t task_id, T& value);
 private:
     void run(){
         while (!quite)
