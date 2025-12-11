@@ -38,6 +38,7 @@ struct TaskInfo{
 };
 
 class ThreadPool{
+public:
     ThreadPool(size_t n);
     ~ThreadPool();
     template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>

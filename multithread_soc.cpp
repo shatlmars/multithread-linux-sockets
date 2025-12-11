@@ -56,35 +56,45 @@ void client_thread(int client_fd){
     
 }
 
+
+int sum(int x, int y){
+    return x + y;
+}
+
+
 int main(){
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    // int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+    // int opt = 1;
+    // setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(12345);
-    addr.sin_addr.s_addr = INADDR_ANY;
-
-
-    bind(server_fd, (sockaddr*)&addr, sizeof(addr));
-    listen(server_fd, 10);
-
-    std::cout << "Server listening on port: 12345\n";
-    std::thread worker(worker_thread);
-    worker.detach();
+    // sockaddr_in addr{};
+    // addr.sin_family = AF_INET;
+    // addr.sin_port = htons(12345);
+    // addr.sin_addr.s_addr = INADDR_ANY;
 
 
-    while (true)
-    {
-        int client_fd = accept(server_fd, nullptr, nullptr);
-        std::cout << "client connected\n";
+    // bind(server_fd, (sockaddr*)&addr, sizeof(addr));
+    // listen(server_fd, 10);
 
-        std::thread(client_thread, client_fd).detach();
+    // std::cout << "Server listening on port: 12345\n";
+    // std::thread worker(worker_thread);
+    // worker.detach();
+
+
+    // while (true)
+    // {
+    //     int client_fd = accept(server_fd, nullptr, nullptr);
+    //     std::cout << "client connected\n";
+
+    //     std::thread(client_thread, client_fd).detach();
     
-    }
+    // }
     
-    close(server_fd);
+    // close(server_fd);
+    // ThreadPool t(5);
+
+    int* p;
+    std::cout << p;
 
 }
