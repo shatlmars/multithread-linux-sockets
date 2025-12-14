@@ -33,14 +33,28 @@ std::any Task::get_result() const {
 
 ThreadPool::ThreadPool(size_t n){
     for(size_t i = 0; i < n; i++){
-        threads.emplace_back(ThreadPool::run, this);
+        threads.emplace_back(&ThreadPool::run, this);
     }
 }
-template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
-uint64_t add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args){
-    uint64_t task_id = last_idx++;
-    
-}
+// template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
+// uint64_t ThreadPool::add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args)
+// template<typename F, typename... Args>
+// uint64_t ThreadPool::add_task(F&& f, Args&&... args)
+// {
+//     const uint64_t task_id = last_idx++;
+
+
+//     {
+//     std::lock_guard<std::mutex> lock(task_info_mtx);
+//     task_info[task_id] = TaskInfo{};
+//     }
+
+
+//     std::lock_guard<std::mutex> q_lock(q_mtx);
+//     q.emplace(Task(std::forward<F>(f), std::forward<Args>(args)...), task_id);
+//     q_cv.notify_one();
+//     return task_id;
+// }
 
 void ThreadPool::wait(uint64_t task_id){
     std::unique_lock<std::mutex> lock(task_info_mtx);

@@ -19,8 +19,10 @@ enum TaskStatus{
 
 class Task{
 public:
-    template<typename FuncRetType, typename ...Args, typename ...FuncTypes>
-    Task(FuncRetType(*func)(FuncTypes...), Args&&... args);
+    template<typename F, typename... Args>
+    Task(F&& f, Args&&... args) {
+        func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+    }
     void operator() ();
     bool has_result();
     std::any get_result() const;
@@ -41,8 +43,24 @@ class ThreadPool{
 public:
     ThreadPool(size_t n);
     ~ThreadPool();
-    template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
-    uint64_t add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args);
+
+    // template<typename FuncReturnedType, typename ...FuncTypes, typename ...Args>
+    // uint64_t add_task(FuncReturnedType(*func)(FuncTypes...), Args&&... args);
+    template<typename F, typename... Args>
+        uint64_t add_task(F&& f, Args&&... args){
+        const uint64_t task_id = last_idx++;
+        
+        {
+        std::lock_guard<std::mutex> lock(task_info_mtx);
+        task_info[task_id] = TaskInfo{};
+        }
+        
+        std::lock_guard<std::mutex> q_lock(q_mtx);
+        q.emplace(Task(std::forward<F>(f), std::forward<Args>(args)...), task_id);
+        q_cv.notify_one();
+        return task_id;
+    }
+
     void wait(uint64_t task_id);
     std::any wait_result(uint64_t task_id); 
     void wait_all();
